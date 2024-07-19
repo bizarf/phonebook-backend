@@ -86,11 +86,7 @@ app.post("/api/persons", async (req, res, next) => {
         });
     }
 
-    if (existingPerson) {
-        return res.status(400).json({
-            error: "name must be unique",
-        });
-    } else {
+    if (!existingPerson) {
         const person = new Person({
             name: body.name,
             number: body.number,
@@ -102,6 +98,10 @@ app.post("/api/persons", async (req, res, next) => {
                 res.json(savedPerson);
             })
             .catch((err) => next(err));
+    } else {
+        return res.status(400).json({
+            error: "name must be unique",
+        });
     }
 });
 
@@ -115,7 +115,9 @@ app.put("/api/persons/:id", (req, res, next) => {
         { new: true, runValidators: true, context: "query" }
     )
         .then((updatedPerson) => res.json(updatedPerson))
-        .catch((err) => next(err));
+        .catch((err) => {
+            next(err);
+        });
 });
 
 const unknownEndpoint = (req, res) => {
