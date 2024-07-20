@@ -1,13 +1,13 @@
-require("dotenv").config();
-const express = require("express");
-const morgan = require("morgan");
-const cors = require("cors");
+require('dotenv').config();
+const express = require('express');
+const morgan = require('morgan');
+const cors = require('cors');
 const app = express();
-const Person = require("./models/person");
+const Person = require('./models/person');
 
-app.use(express.static("dist"));
+app.use(express.static('dist'));
 app.use(express.json());
-app.use(morgan("tiny"));
+app.use(morgan('tiny'));
 app.use(cors());
 
 // let persons = [
@@ -33,18 +33,18 @@ app.use(cors());
 //     },
 // ];
 
-app.get("/", (req, res) => {
-    res.send("<h1>Hello</h1>");
+app.get('/', (req, res) => {
+    res.send('<h1>Hello</h1>');
 });
 
 // get all the phonebook entries
-app.get("/api/persons", (req, res) => {
+app.get('/api/persons', (req, res) => {
     Person.find({}).then((people) => {
         res.json(people);
     });
 });
 
-app.get("/info", async (req, res) => {
+app.get('/info', async (req, res) => {
     // display info on how many phone book entries there are
     const count = await Person.countDocuments({});
 
@@ -54,35 +54,35 @@ app.get("/info", async (req, res) => {
 });
 
 // fetch a single person
-app.get("/api/persons/:id", (req, res) => {
+app.get('/api/persons/:id', (req, res) => {
     Person.findById(req.params.id).then((person) => {
         res.json(person);
     });
 });
 
 // delete a single person
-app.delete("/api/persons/:id", (req, res, next) => {
+app.delete('/api/persons/:id', (req, res, next) => {
     Person.findByIdAndDelete(req.params.id)
-        .then((result) => {
+        .then(() => {
             res.status(204).end();
         })
         .catch((err) => next(err));
 });
 
 // add a person
-app.post("/api/persons", async (req, res, next) => {
+app.post('/api/persons', async (req, res, next) => {
     const body = req.body;
     const existingPerson = await Person.findOne({
-        name: { $regex: new RegExp(body.name, "i") },
+        name: { $regex: new RegExp(body.name, 'i') },
     });
 
     if (!body.name) {
         return res.status(400).json({
-            error: "name missing",
+            error: 'name missing',
         });
     } else if (!body.number) {
         return res.status(400).json({
-            error: "number missing",
+            error: 'number missing',
         });
     }
 
@@ -100,19 +100,19 @@ app.post("/api/persons", async (req, res, next) => {
             .catch((err) => next(err));
     } else {
         return res.status(400).json({
-            error: "name must be unique",
+            error: 'name must be unique',
         });
     }
 });
 
 // update a person
-app.put("/api/persons/:id", (req, res, next) => {
+app.put('/api/persons/:id', (req, res, next) => {
     const { name, number } = req.body;
 
     Person.findByIdAndUpdate(
         req.params.id,
         { name, number },
-        { new: true, runValidators: true, context: "query" }
+        { new: true, runValidators: true, context: 'query' }
     )
         .then((updatedPerson) => res.json(updatedPerson))
         .catch((err) => {
@@ -121,7 +121,7 @@ app.put("/api/persons/:id", (req, res, next) => {
 });
 
 const unknownEndpoint = (req, res) => {
-    res.status(404).send({ error: "unknown endpoint" });
+    res.status(404).send({ error: 'unknown endpoint' });
 };
 
 app.use(unknownEndpoint);
@@ -129,9 +129,9 @@ app.use(unknownEndpoint);
 const errorHandler = (err, req, res, next) => {
     console.error(err.message);
 
-    if (err.name === "CastError") {
-        return res.status(400).send({ error: "malformatted id" });
-    } else if (err.name === "ValidationError") {
+    if (err.name === 'CastError') {
+        return res.status(400).send({ error: 'malformatted id' });
+    } else if (err.name === 'ValidationError') {
         return res.status(400).json({ error: err.message });
     }
 
